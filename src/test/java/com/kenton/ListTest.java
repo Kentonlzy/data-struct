@@ -3,17 +3,16 @@ package com.kenton;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Assert.*;
+
 
 import java.util.Iterator;
 
 public class ListTest {
-    private List<Integer> list;
+    private final List<Integer> list=new List<>();;
     private final List<Student> studentList=new List<>();
     private Iterator<Student> itr;
     @Before
     public void before() {
-        list = new List<>();
         list.add(1).add(2).add(null).add(3).add(4);
         studentList.add(new Student("zhangsan",20))
         .add(new Student("lisi",21))
@@ -23,8 +22,9 @@ public class ListTest {
     @Test
     public void itr(){
         while(itr.hasNext()){
-            itr.next();
+            System.out.printf("first:%s \n",itr.next());
         }
+        Assert.assertNull(itr.next());
     }
     @Test
     public void add() {
@@ -41,10 +41,8 @@ public class ListTest {
         Assert.assertNull(list.get(2));
         Assert.assertEquals((Integer)1,list.get(0));
         Assert.assertEquals((Integer)4,list.get(4));
-
-
-
-        //get index by value
+//
+//        //get index by value
         Assert.assertEquals(0,list.get((Integer)1));
         Assert.assertEquals(2,list.get(null));
         Assert.assertEquals(4,list.get((Integer)4));
@@ -70,18 +68,22 @@ public class ListTest {
                 .delete(8)
                 .forEach(System.out::println);
         System.out.println("=======");
+
        studentList.delete(new Student("zhangsan",20))
+               .delete(0)
+               .delete(new Student("zhangsan",25))
                .forEach(System.out::println);
-       Assert.assertEquals(2,studentList.size());
+       Assert.assertEquals(1,studentList.size());
     }
     @Test
     public void forEach() {
-//        list.forEach(value -> {
-//            if (value != null) {
-//                value = value + 1;
-//                System.out.println(value);
-//            }
-//        });
+        list.forEach(value -> {
+            if (value != null) {
+                value = value + 1;
+                System.out.printf("%d ",value);
+            }
+        });
+        System.out.println();
         for(Integer i:list){
             System.out.printf("%d ",i);
         }
