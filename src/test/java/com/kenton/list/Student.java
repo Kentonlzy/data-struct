@@ -1,4 +1,4 @@
-package com.kenton;
+package com.kenton.list;
 
 import java.util.Objects;
 

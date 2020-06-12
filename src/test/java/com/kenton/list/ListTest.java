@@ -1,4 +1,4 @@
-package com.kenton;
+package com.kenton.list;
 
 import org.junit.Assert;
 import org.junit.Before;

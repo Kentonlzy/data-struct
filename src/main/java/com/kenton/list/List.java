@@ -1,7 +1,6 @@
-package com.kenton;
+package com.kenton.list;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 public class List<T> implements Iterable<T> {
