@@ -3,7 +3,8 @@ package com.kenton.list;
 import java.util.function.Consumer;
 
 /**
- * arrayList 用数组实现，当size>=capacity时需要动态扩容，每次扩大1.5倍。不再实现
+ * arrayList 用数组实现，当size>=capacity时需要动态扩容，每次扩大1.5倍。
+ * 如果要实现arraylist，实现AbstractList<T>即可，此处不在实现。
  * @param <T>
  */
 public interface AbstractList<T> extends Iterable<T> {
