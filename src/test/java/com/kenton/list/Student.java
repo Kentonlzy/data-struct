@@ -1,11 +1,12 @@
 package com.kenton.list;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class Student {
    private String name;
    private int age;
-
+   ArrayList s;
    public Student(String name, int age) {
       this.name = name;
       this.age = age;

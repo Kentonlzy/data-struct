@@ -3,12 +3,11 @@ package com.kenton.list;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-public class List<T> implements Iterable<T> {
-    //指向头节点
+public class List<T> implements AbstractList<T>{
     private final Node<T> head;
     private int size = 0;
 
-    //指向尾节点
+    //生成头节点
     public List() {
         head = new Node<T>(null);
     }
@@ -34,10 +33,19 @@ public class List<T> implements Iterable<T> {
         return this;
     }
 
+    /**
+     *  获取当前单链表长度
+     * @return this.size
+     */
     public int size() {
         return size;
     }
 
+    /**
+     *  根据index来获取元素
+     * @param index 下标
+     * @return 下标为index的元素
+     */
     public T get(int index) {
         if (index > size || index < 0) {
             return null;
@@ -55,6 +63,11 @@ public class List<T> implements Iterable<T> {
         return result;
     }
 
+    /**
+     * 获取元素的下标
+     * @param value 元素值
+     * @return 元素的下标
+     */
     public int get(T value) {
         Node<T> curr = head.next;
         int p = 0;
@@ -74,6 +87,12 @@ public class List<T> implements Iterable<T> {
         return -1;
     }
 
+    /**
+     *  插入元素
+     * @param index 元素要插入的位置
+     * @param value 元素值
+     * @return this
+     */
     public List<T> insert(int index, T value) {
         if (index > size + 1 || index < 0) {
             return this;
@@ -93,6 +112,11 @@ public class List<T> implements Iterable<T> {
         return this;
     }
 
+    /**
+     * 删除值为value的节点
+     * @param value 元素值
+     * @return this
+     */
     public List<T> delete(T value) {
         Node<T> curr = head;
         while (curr.next != null) {
@@ -111,6 +135,11 @@ public class List<T> implements Iterable<T> {
         return this;
     }
 
+    /**
+     * 删除下标为index的元素
+     * @param index 下标
+     * @return this
+     */
     public List<T> delete(int index) {
         if (index > size || index < 0) {
             return this;
@@ -128,6 +157,10 @@ public class List<T> implements Iterable<T> {
         return this;
     }
 
+    /**
+     * 迭代器 为了让list能使用增强for循环
+     * @return  迭代器
+     */
     @Override
     public Iterator<T> iterator() {
         return new Itr();
@@ -168,6 +201,10 @@ public class List<T> implements Iterable<T> {
         return tempList;
     }
 
+    /**
+     *  单链表中的节点
+     * @param <T>
+     */
     private static class Node<T> {
         T data;
         Node<T> next;
@@ -179,14 +216,25 @@ public class List<T> implements Iterable<T> {
 
     }
 
+    /**
+     * 迭代器
+     */
     private class Itr implements Iterator<T> {
         private int cursor = 0;
 
+        /**
+         * 当游标小于单链表总长度时，证明还有元素尚未遍历
+         * @return cursor < size;
+         */
         @Override
         public boolean hasNext() {
             return cursor < size;
         }
 
+        /**
+         * 当遍历到链表尾部时，继续使用itr.next时返回 null
+         * @return 元素值
+         */
         @Override
         public T next() {
             if (cursor >=size) {
