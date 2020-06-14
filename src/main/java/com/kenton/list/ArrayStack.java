@@ -6,6 +6,7 @@ import java.util.Arrays;
 /**
  * 用数组实现栈，用这种方式实现的问题在于：执行pop后，数组内的数据并未被gc回收，会一直占用空间。
  * 并且当没有使用capacity初始化，且有大量push，没有pop时，数组会不断扩容，造成性能下降。
+ * 也可以用双向链表实现，思路跟队列相似，不再演示。
  */
 public class ArrayStack<T> {
     private Object[] arr;
