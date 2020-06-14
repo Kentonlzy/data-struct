@@ -21,10 +21,6 @@ public class List<T> implements AbstractList<T>{
     public List<T> add(T data) {
         Node<T> node = new Node<T>(data);
         size++;
-        if (head.next == null) {
-            head.next = node;
-            return this;
-        }
         Node<T> curr = head;
         while (curr.next != null) {
             curr = curr.next;
