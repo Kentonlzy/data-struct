@@ -1,11 +1,12 @@
 package com.kenton.list;
 
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
- * 用数组实现栈，用这种方式实现的问题在于：执行pop后，数组内的数据并未被gc回收，会一直占用空间。
- * 并且当没有使用capacity初始化，且有大量push，没有pop时，数组会不断扩容，造成性能下降。
+ * 用数组实现栈，当size==cursor时，数组扩容至原来的2倍。
+ * 当size>cursor*2时，数组缩容至原来的0.75倍
  * 也可以用双向链表实现，思路跟队列相似，不再演示。
  */
 public class ArrayStack<T> {
@@ -41,7 +42,12 @@ public class ArrayStack<T> {
         if (index<0){
             throw new IllegalArgumentException("Has reached the bottom of the stack ");
         }
-        return element(index);
+        T element = element(index);
+        if(size>cursor<<1){//resize
+            size=(int)(size*0.75);
+            arr = Arrays.copyOf(arr, size);
+        }
+        return element;
     }
     private T element(int index){
         return (T)arr[index];
