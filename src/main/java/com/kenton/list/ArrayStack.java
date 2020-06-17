@@ -1,7 +1,6 @@
 package com.kenton.list;
 
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
@@ -13,39 +12,40 @@ public class ArrayStack<T> {
     private Object[] arr;
     private static  final int DEFAULT_CAPACITY =10;
     private static final int INITIALIZATION =2<<3;
-    private int size=0;
-    private int cursor=-1;
+    private int capacity =0;
+    private int cursor=0;
     public ArrayStack(){
         arr=new Object[DEFAULT_CAPACITY];
-        size=DEFAULT_CAPACITY;
+        capacity =DEFAULT_CAPACITY;
     }
     public ArrayStack(int capacity){
         if (capacity<=0){
             arr=new Object[INITIALIZATION];
-            size=INITIALIZATION;
+            this.capacity =INITIALIZATION;
         }else{
             arr =new Object[capacity];
-            size=capacity;
+            this.capacity =capacity;
         }
     }
-    public int getSize(){return size;}
+    public int getCapacity(){return capacity;}
     public int getCursor(){return cursor;}
+    public boolean isEmpty(){return cursor==0;}
 
     public ArrayStack<T> push(T value){
         add(value);
         return this;
     }
     public T pop(){
-       return get(cursor--);
+       return get(--cursor);
     }
     private T get(int index){
         if (index<0){
             throw new IllegalArgumentException("Has reached the bottom of the stack ");
         }
         T element = element(index);
-        if(size>cursor<<1){//resize
-            size=(int)(size*0.75);
-            arr = Arrays.copyOf(arr, size);
+        if(capacity >cursor<<1){//resize
+            capacity =(int)(capacity *0.75);
+            arr = Arrays.copyOf(arr, capacity);
         }
         return element;
     }
@@ -53,12 +53,12 @@ public class ArrayStack<T> {
         return (T)arr[index];
     }
     private void add(T value){
-        if (cursor>=size-1){//扩容2倍
-            size=size<<1;
+        if (cursor>= capacity -1){//扩容2倍
+            capacity = capacity <<1;
             //拷贝值新数组
-            arr = Arrays.copyOf(arr, size);
+            arr = Arrays.copyOf(arr, capacity);
         }
-        arr[++cursor]=value;
+        arr[cursor++]=value;
     }
 
 }
