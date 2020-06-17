@@ -24,8 +24,8 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
 
     /**
      *  先序遍历，根左右
-     * @param root
-     * @param func
+     * @param root 某一节点
+     * @param func 如何处置当前遍历到的值
      */
     private void preOrder(Node<T> root, Consumer<? super T> func){
         if (root == null) {
@@ -51,8 +51,8 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
     }
     /**
      * 中序遍历，左根右
-     * @param root
-     * @param func
+     * @param root 某一节点
+     * @param func 如何处置当前遍历到的值
      */
     private void middleOrder(Node<T> root,Consumer< ? super T> func){
         if(root==null){
@@ -73,7 +73,13 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
         }
     }
 
-    private void rightLeftRoot(Node<T> root,Consumer<? super T> func){
+    /**
+     * 右左根遍历，为了尽量保持删除节点后，二叉树基本不变。
+     * 使用右左根遍历是否会更好？更能保持二叉树原有的形状
+     * @param root 某一节点
+     * @param func 如何处置当前遍历到的值
+     */
+    private void rightRootLeft(Node<T> root, Consumer<? super T> func){
         if (root == null) {
             return;
         }
@@ -127,55 +133,32 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
             }
         }
     }
+
     /**
-     * 删除二叉搜索树的节点，分为两种情况
-     * 1、删除叶子节点=>直接删除即可
-     * 2、删除非叶子节点->使用该节点的左子树或右子树替换该节点即可
-     *       6
-     *    3     8
-     *  2   5  7  11
-     * 1   4
-     * 比如：要删除左子树中的3，则该二叉搜素树可以变成如下
-     *       6
-     *     2    8
-     *  1   5  7  11
-     *    4
-     * 比如：要删除右子树中的8，则该二叉搜索树可变成：
-     *       6
-     *    3      11
-     *  2   5  7
-     * 1   4
-     * @param value
-     * @return
+     * 删除节点
+     * @param value 删除节点的值
+     * @return this 可以链式调用
      */
     public BinarySearchTree<T> remove(T value) {
         if (root == null || value == null) {
             return this;
         }
-        if(root.data.compareTo(value)==0){//要移除根节点
+        if(root.data.compareTo(value)==0){//移除根节点
             root=null;
             return this;
         }
-        Node<T> parent = findParent(root, value);
-        boolean isLeft=root.data.compareTo(value)>0;
+        Node<T> parent = findParent(root, value);//找到指定值的父亲节点
         if (parent==null) {
             return this;
         }
         Node<T> curr = parent;
         while ( curr != null) {
             int result = curr.data.compareTo(value);
-            if (result == 0) {
-                if (curr.left == null && curr.right == null) { //叶子节点
-                    removeNode(parent,curr);
+            if (result == 0) { //找到要删除的节点
+                if (curr.left == null && curr.right == null) { //如果要删除的节点为叶子节点，直接删除
+                    removeLeafNode(parent,curr);
                 }else{ //不是叶子节点
-                    if(isLeft){
-                        //在根节点的左侧，找最小值
-                        removeLeftCurrentNode(curr);
-                    }else{
-                        //在根节点的右侧，找最大值
-                        removeRightCurrentNode(curr);
-                    }
-
+                    removeNode(curr);
                 }
                 return this;
             } else if (result > 0) {//比父亲节点的值小，遍历左子树
@@ -187,72 +170,68 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
         return this;
     }
 
-
-
-
-
-    private void removeLeftCurrentNode(Node<T> curr) {
+    /**
+     * 删除节点
+     * @param curr 要删除的节点
+     */
+    private void removeNode(Node<T> curr) {
         if(curr==null){
             throw new NullPointerException();
         }
-        Node<T> min =null;
-
-        if(curr.left!=null){
-            min=findMin(curr.left);
-        }else if(curr.right!=null){
-            min=findMin(curr.right);
+        Node<T> replaceNode = searchReplaceNode(curr);
+        if (replaceNode==null){
+            throw new NullPointerException();
         }
-        if(min==null){
-            throw  new NullPointerException();
-        }
-        curr.data=min.data;
-        //保存变量准备重新构建二叉树
-        ArrayStack<T> stack = new ArrayStack<>();
-        Node<T> finalMin = min;
-        rightLeftRoot(curr,value-> {
-            if(finalMin.data.compareTo(value)!=0){
-                stack.push(value);
-            }
-        });
-        curr.left=null;
-        curr.right=null;
-        //重新构建二叉树
-        while(!stack.isEmpty()){
-            add(curr,stack.pop());
-        }
+        //找到要替换的节点，替换值后，重新构建 子二叉树
+        rebuildTree(curr, replaceNode.data);
     }
-    private void removeRightCurrentNode(Node<T> curr){
-        if(curr==null){
-            throw new NullPointerException();
-        }
-        Node<T> max =null;
 
-        if(curr.left!=null){
-            max=findMax(curr.left);
-        }else if(curr.right!=null){
-            max=findMax(curr.right);
+    private Node<T> searchReplaceNode(Node<T> curr) {
+        boolean isLeft=root.data.compareTo(curr.data)>0;//要删除的节点是否在根结点左侧
+        Node<T> replaceNode =null;
+        if(isLeft){ //要删除的节点在根节点左侧，找最小值替换
+            if(curr.left!=null){ //左子树的值肯定为最小值
+                replaceNode=findMin(curr.left);
+            }else if(curr.right!=null){
+                replaceNode=findMin(curr.right);
+            }
+        }else{ //要删除的节点在根节点左侧，找最大值替换
+            if(curr.right!=null){ //右子树的值肯定为最大值
+                replaceNode=findMax(curr.right);
+            }else if(curr.left!=null){
+                replaceNode=findMax(curr.left);
+            }
         }
-        if(max==null){
-            throw  new NullPointerException();
+        return replaceNode;
+    }
+
+    private void rebuildTree(Node<T> curr, T targetValue) {
+        if(targetValue==null || curr==null){
+            return;
         }
-        curr.data=max.data;
+        curr.data=targetValue;
         //保存变量准备重新构建二叉树
         ArrayStack<T> stack = new ArrayStack<>();
-        Node<T> finalMax = max;
-        preOrder(curr,value-> {
-            if(finalMax.data.compareTo(value)!=0){
+        rightRootLeft(curr, value-> {
+            if(targetValue.compareTo(value)!=0){ //排除要被替换的值，targetValue.compareTo(value)==0会命中两次
                 stack.push(value);
             }
         });
+        //删除现有节点。事实上，这步操作可以不用做，为了方便理解，所以加上了。
         curr.left=null;
         curr.right=null;
-        //重新构建二叉树
+        //重新构建二叉搜索树
         while(!stack.isEmpty()){
             add(curr,stack.pop());
         }
     }
 
-    private void removeNode(Node<T> parent, Node<T> curr) {
+    /**
+     * 删除叶子节点
+     * @param parent leafNode.parent
+     * @param curr leafNode
+     */
+    private void removeLeafNode(Node<T> parent, Node<T> curr) {
         if (parent==null||curr==null){
             throw new NullPointerException();
         }
@@ -286,7 +265,6 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
                 p = p.right;
             }
         }
-        //
         return p==null?null:result;
     }
 
@@ -299,6 +277,12 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
         return root == null ;
     }
 
+    /**
+     * 找到包含最小值的节点。
+     * 二叉搜索树中，最小值一定是左子树中的最后一个值。
+     * @param node 从哪个节点开始搜索最小值
+     * @return 包含最小值的节点
+     */
     private Node<T> findMin(Node<T> node){
         if (node == null) {
             return null;
@@ -325,6 +309,12 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
         }
         return max.data;
     }
+    /**
+     * 找到包含最大值的节点。
+     * 二叉搜索树中，最大值一定是右子树中的最后一个值。
+     * @param node 从哪个节点开始搜索最大值
+     * @return 包含最大值的节点
+     */
     private Node<T> findMax(Node<T> node){
         if ( node == null) {
             return null;
@@ -336,7 +326,11 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
         return curr;
     }
 
-
+    /**
+     * 遍历二叉树，搜索是否包含目标值
+     * @param value  要搜索的值
+     * @return bool：是否包含目标值
+     */
     public boolean contains(T value) {
         if (value == null) {
             return false;
