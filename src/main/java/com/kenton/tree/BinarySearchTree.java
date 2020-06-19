@@ -157,8 +157,12 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
             if (result == 0) { //找到要删除的节点
                 if (curr.left == null && curr.right == null) { //如果要删除的节点为叶子节点，直接删除
                     removeLeafNode(parent,curr);
-                }else{ //不是叶子节点
-                    removeNode(curr);
+                }else if(curr.right==null){ //左子树不为空
+                    parent.left=curr.left;
+                }else if( curr.left==null){//右子树不为空
+                    parent.left=curr.right;
+                }else{ //左右子树都不为空
+                    removeNodeBetter(curr);
                 }
                 return this;
             } else if (result > 0) {//比父亲节点的值小，遍历左子树
@@ -169,7 +173,18 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
         }
         return this;
     }
-
+    public void removeNodeBetter(Node<T> curr){
+        if(curr==null){
+            throw new NullPointerException();
+        }
+        Node<T> replaceNode = searchReplaceNode(curr);
+        if (replaceNode==null){
+            throw new NullPointerException("delete node failed!,because it's left is null");
+        }
+        Node<T> replaceNodeParent = findParent(curr, replaceNode.data);
+        curr.data=replaceNode.data;
+        replaceNodeParent.right=replaceNode.right;
+    }
     /**
      * 删除节点
      * @param curr 要删除的节点
@@ -180,27 +195,16 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
         }
         Node<T> replaceNode = searchReplaceNode(curr);
         if (replaceNode==null){
-            throw new NullPointerException();
+            throw new NullPointerException("delete node failed!,because it's left is null");
         }
         //找到要替换的节点，替换值后，重新构建 子二叉树
         rebuildTree(curr, replaceNode.data);
     }
 
     private Node<T> searchReplaceNode(Node<T> curr) {
-        boolean isLeft=root.data.compareTo(curr.data)>0;//要删除的节点是否在根结点左侧
         Node<T> replaceNode =null;
-        if(isLeft){ //要删除的节点在根节点左侧，找最小值替换
-            if(curr.left!=null){ //左子树的值肯定为最小值
-                replaceNode=findMin(curr.left);
-            }else if(curr.right!=null){
-                replaceNode=findMin(curr.right);
-            }
-        }else{ //要删除的节点在根节点左侧，找最大值替换
-            if(curr.right!=null){ //右子树的值肯定为最大值
-                replaceNode=findMax(curr.right);
-            }else if(curr.left!=null){
-                replaceNode=findMax(curr.left);
-            }
+        if(curr.left!=null){
+            replaceNode=findMax(curr.left);
         }
         return replaceNode;
     }
@@ -225,7 +229,14 @@ public class BinarySearchTree<T extends Comparable<? super T>> {
             add(curr,stack.pop());
         }
     }
+    public void removeNode2(Node<T> parent,Node<T> curr){
+        if(parent==null||curr==null){
+            throw new NullPointerException();
+        }
+        boolean isLeft=root.data.compareTo(curr.data)>0;
+        Node<T> replaceNode=null;
 
+    }
     /**
      * 删除叶子节点
      * @param parent leafNode.parent
