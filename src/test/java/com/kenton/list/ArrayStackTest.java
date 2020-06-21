@@ -4,65 +4,119 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 
-public  class ArrayStackTest {
-    ArrayStack<Student> capStack;
-    ArrayStack<Integer> defaultStack ;
-    ArrayStack<Integer> negativeStack;
-    ArrayStack<Integer> resizeStack;
+
+public class ArrayStackTest {
+    ArrayStack<Integer> capInitStack;
+    ArrayStack<Integer> defaultInitStack;
+    ArrayStack<Integer> negativeInitStack;
+    public static final String CAPACITY="capacity";
+    public static final String TOP_CURSOR="topCursor";
+    public static final String FRONT_CURSOR="frontCursor";
     @Before
-    public void init(){
-        capStack = new ArrayStack<>(9);
-        //扩容
-        for (int i=0;i<=11;i++) {
-            capStack.push(new Student("zhangsan", i + 10));
+    public void init() {
+        capInitStack = new ArrayStack<>(9);
+        capInitStack.push(0).push(1).push(2).push(3);
+
+        defaultInitStack =new ArrayStack<>();
+
+        negativeInitStack=new ArrayStack<>(-1);
+    }
+
+    public Integer getInteger(ArrayStack stack, String fieldName) {
+        try {
+            Class stackClass = ArrayStack.class;
+            Field field = stackClass.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field.getInt(stack);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
         }
-        defaultStack =new ArrayStack<>();
-        defaultStack.push(-1);
-        defaultStack.push(0).push(2);
-
-        negativeStack=new ArrayStack<>(-1);
-        negativeStack.push(-1);
-
-        resizeStack=new ArrayStack<>();
-        resizeStack.push(-1);
-
-
-    }
-    @Test
-    public void capacity(){
-        Assert.assertEquals(18, capStack.getCapacity());
-        Assert.assertEquals(12,capStack.getCursor());
-
-        Assert.assertEquals(new Student("zhangsan",21),capStack.pop());
-        Assert.assertEquals(11, capStack.getCursor());
-        Assert.assertEquals(18,capStack.getCapacity());
-        Assert.assertFalse(capStack.isEmpty());
+        return null;
     }
 
     @Test
-    public  void pop() {
-        Assert.assertEquals(2,(int)defaultStack.pop());
+    public void testCapacity() {
+        for (int i = 0; i < 10; i++) {
+            capInitStack.push(i);
+        }
+       Assert.assertEquals(18,(int)getInteger(capInitStack,CAPACITY));
+        Assert.assertEquals(16,(int)getInteger(defaultInitStack,CAPACITY));
+        Assert.assertEquals(16,(int)getInteger(negativeInitStack,CAPACITY));
+    }
+
+    @Test
+    public void testPeek() {
+        Assert.assertEquals(0, (int) capInitStack.peek());
+        Assert.assertEquals(1, (int) capInitStack.peek());
+        Assert.assertEquals(2, (int) capInitStack.peek());
+        Assert.assertEquals(3,(int) capInitStack.peek());
+        //isEmpty
+        Assert.assertTrue(capInitStack.isEmpty());
+        //peek to stack top ,capacity will not be changed
+        Assert.assertEquals(9,(int)getInteger(capInitStack,CAPACITY));
+        //peek to stack top=> front cursor== top cursor==4
+        Assert.assertEquals(4,(int)getInteger(capInitStack,TOP_CURSOR));
+        Assert.assertEquals(4,(int)getInteger(capInitStack,FRONT_CURSOR));
+
+        capInitStack.push(0);
+        //after push stack is not empty
+        Assert.assertFalse(capInitStack.isEmpty());
+        //top cursor ++
+        Assert.assertEquals(5,(int)getInteger(capInitStack,TOP_CURSOR));
+        capInitStack.pop();
+        //top cursor --
+        Assert.assertEquals(4,(int)getInteger(capInitStack,TOP_CURSOR));
+
     }
     @Test(expected = IllegalArgumentException.class)
-    public void invalidPop(){
-        negativeStack.pop();
-        negativeStack.pop();
+    public void testInvalidPeekOrPop(){
+        for (int i = 0; i < 3; i++) {
+            capInitStack.peek();
+        }
+        capInitStack.pop();
+        capInitStack.pop();
     }
     @Test
-    public void resize(){
-        //stack中有6个元素：-1，4
-        resizeStack.push(0).push(1).push(2).push(3).push(4);
-        Assert.assertEquals(10,resizeStack.getCapacity());
-        Assert.assertEquals(6,resizeStack.getCursor());
-        //由于修改了cursor的初始值，所以这段测试用例要重新写，明天再写
-//        resizeStack.pop(); //10>4<<1,resize:10*0.75=7
-//        Assert.assertEquals(10,resizeStack.getCapacity());
-//        Assert.assertEquals(1,resizeStack.getCursor());
-//
-//        resizeStack.pop(); //7>3<<1，resize:7*0.75=5.25 => 5
-//        Assert.assertEquals(5,resizeStack.getCapacity());
-//        Assert.assertEquals(4,resizeStack.getCursor());
+    public void testResizeArray(){
+        for (int i=0;i<16;i++){
+            defaultInitStack.push(i);
+        }
+        //capacity*=2
+        Assert.assertEquals(32,(int)getInteger(defaultInitStack,CAPACITY));
+        Assert.assertEquals(0,(int)getInteger(defaultInitStack,FRONT_CURSOR));
+        Assert.assertEquals(16,(int)getInteger(defaultInitStack,TOP_CURSOR));
+
+        defaultInitStack.peek();
+        //resize array:capacity=32*0.75==24,and front cursor to zero,top cursor=element number
+        Assert.assertEquals(24,(int)getInteger(defaultInitStack,CAPACITY));
+        Assert.assertEquals(0,(int)getInteger(defaultInitStack,FRONT_CURSOR));
+        Assert.assertEquals(15,(int)getInteger(defaultInitStack,TOP_CURSOR));
+
+        //min capacity is 16
+        //current size is 15,current capacity is 24
+        for(int i=0;i<9;i++){
+            defaultInitStack.pop();
+        }
+        Assert.assertEquals(16,(int)getInteger(defaultInitStack,CAPACITY));
+        Assert.assertEquals(0,(int)getInteger(defaultInitStack,FRONT_CURSOR));
+        Assert.assertEquals(6,(int)getInteger(defaultInitStack,TOP_CURSOR));
+
+        defaultInitStack.pop();
+        defaultInitStack.pop();
+        defaultInitStack.pop();
+
+        defaultInitStack.peek();
+        defaultInitStack.peek();
+        defaultInitStack.peek();
+
+        Assert.assertEquals(16,(int)getInteger(defaultInitStack,CAPACITY));
+        Assert.assertEquals(3,(int)getInteger(defaultInitStack,FRONT_CURSOR));
+        Assert.assertEquals(3,(int)getInteger(defaultInitStack,TOP_CURSOR));
+        Assert.assertTrue(defaultInitStack.isEmpty());
+
+
 
     }
 }

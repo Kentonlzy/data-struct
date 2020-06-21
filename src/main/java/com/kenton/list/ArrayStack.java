@@ -1,8 +1,6 @@
 package com.kenton.list;
 
 
-import java.util.Arrays;
-
 /**
  * 用数组实现栈，当size==cursor时，数组扩容至原来的2倍。
  * 当size>cursor*2时，数组缩容至原来的0.75倍
@@ -10,42 +8,50 @@ import java.util.Arrays;
  */
 public class ArrayStack<T> {
     private Object[] arr;
-    private static  final int DEFAULT_CAPACITY =10;
-    private static final int INITIALIZATION =2<<3;
+    public static final int DEFAULT_CAPACITY =2<<3;
     private int capacity =0;
-    private int cursor=0;
+    private int topCursor =0;
+    private int frontCursor=0;
     public ArrayStack(){
-        arr=new Object[DEFAULT_CAPACITY];
-        capacity =DEFAULT_CAPACITY;
+       this(DEFAULT_CAPACITY);
     }
     public ArrayStack(int capacity){
         if (capacity<=0){
-            arr=new Object[INITIALIZATION];
-            this.capacity =INITIALIZATION;
+            arr=new Object[DEFAULT_CAPACITY];
+            this.capacity = DEFAULT_CAPACITY;
         }else{
             arr =new Object[capacity];
             this.capacity =capacity;
         }
     }
-    public int getCapacity(){return capacity;}
-    public int getCursor(){return cursor;}
-    public boolean isEmpty(){return cursor==0;}
+    public boolean isEmpty(){return topCursor ==0 || frontCursor==topCursor;}
 
     public ArrayStack<T> push(T value){
         add(value);
         return this;
     }
     public T pop(){
-       return get(--cursor);
+       return get(--topCursor);
+    }
+    public T peek(){
+        return get(frontCursor++);
     }
     private T get(int index){
-        if (index<0){
+        if (index<0 ||frontCursor>topCursor){
             throw new IllegalArgumentException("Has reached the bottom of the stack ");
         }
         T element = element(index);
-        if(capacity >cursor<<1){//resize
-            capacity =(int)(capacity *0.75);
-            arr = Arrays.copyOf(arr, capacity);
+        int elementNum=topCursor-frontCursor;
+        if(capacity > elementNum <<1 && capacity> DEFAULT_CAPACITY){//当有一半的空间空闲，且当前容量大于最小容量时才发生拷贝
+            int newCapacity=(int)(capacity*0.75);
+            if(newCapacity< DEFAULT_CAPACITY){
+                newCapacity= DEFAULT_CAPACITY;
+            }
+            arr=copy(frontCursor,topCursor,newCapacity);
+            //缩容后，更新栈首指针,栈顶指针及最大容量
+            frontCursor=0;
+            topCursor=elementNum;
+            capacity=newCapacity;
         }
         return element;
     }
@@ -53,12 +59,21 @@ public class ArrayStack<T> {
         return (T)arr[index];
     }
     private void add(T value){
-        if (cursor>= capacity -1){//扩容2倍
+        if (topCursor >= capacity -1){//扩容2倍
             capacity = capacity <<1;
             //拷贝值新数组
-            arr = Arrays.copyOf(arr, capacity);
+            arr = copy(frontCursor,topCursor,capacity);
         }
-        arr[cursor++]=value;
+        arr[topCursor++]=value;
     }
-
+    private Object[] copy(int start,int end,int newCapacity){
+        System.out.println("发生了一次复制，newCapacity："+newCapacity);
+        Object[] arr=new Object[newCapacity];
+        int index=0;
+        while (start<=end){
+            arr[index]=this.arr[start++];
+            index++;
+        }
+        return arr;
+    }
 }
