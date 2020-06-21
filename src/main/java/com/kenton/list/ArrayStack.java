@@ -30,10 +30,12 @@ public class ArrayStack<T> {
         add(value);
         return this;
     }
-    public T pop(){
+    public T popLast(){
        return get(--topCursor);
     }
-    public T peek(){
+    public T peekLast(){return get(topCursor);}
+    public T peekFront(){return get(frontCursor);}
+    public T popFront(){
         return get(frontCursor++);
     }
     private T get(int index){

@@ -48,10 +48,10 @@ public class ArrayStackTest {
 
     @Test
     public void testPeek() {
-        Assert.assertEquals(0, (int) capInitStack.peek());
-        Assert.assertEquals(1, (int) capInitStack.peek());
-        Assert.assertEquals(2, (int) capInitStack.peek());
-        Assert.assertEquals(3,(int) capInitStack.peek());
+        Assert.assertEquals(0, (int) capInitStack.popFront());
+        Assert.assertEquals(1, (int) capInitStack.popFront());
+        Assert.assertEquals(2, (int) capInitStack.popFront());
+        Assert.assertEquals(3,(int) capInitStack.popFront());
         //isEmpty
         Assert.assertTrue(capInitStack.isEmpty());
         //peek to stack top ,capacity will not be changed
@@ -65,7 +65,7 @@ public class ArrayStackTest {
         Assert.assertFalse(capInitStack.isEmpty());
         //top cursor ++
         Assert.assertEquals(5,(int)getInteger(capInitStack,TOP_CURSOR));
-        capInitStack.pop();
+        capInitStack.popLast();
         //top cursor --
         Assert.assertEquals(4,(int)getInteger(capInitStack,TOP_CURSOR));
 
@@ -73,10 +73,10 @@ public class ArrayStackTest {
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidPeekOrPop(){
         for (int i = 0; i < 3; i++) {
-            capInitStack.peek();
+            capInitStack.popFront();
         }
-        capInitStack.pop();
-        capInitStack.pop();
+        capInitStack.popLast();
+        capInitStack.popLast();
     }
     @Test
     public void testResizeArray(){
@@ -88,7 +88,7 @@ public class ArrayStackTest {
         Assert.assertEquals(0,(int)getInteger(defaultInitStack,FRONT_CURSOR));
         Assert.assertEquals(16,(int)getInteger(defaultInitStack,TOP_CURSOR));
 
-        defaultInitStack.peek();
+        defaultInitStack.popFront();
         //resize array:capacity=32*0.75==24,and front cursor to zero,top cursor=element number
         Assert.assertEquals(24,(int)getInteger(defaultInitStack,CAPACITY));
         Assert.assertEquals(0,(int)getInteger(defaultInitStack,FRONT_CURSOR));
@@ -97,19 +97,19 @@ public class ArrayStackTest {
         //min capacity is 16
         //current size is 15,current capacity is 24
         for(int i=0;i<9;i++){
-            defaultInitStack.pop();
+            defaultInitStack.popLast();
         }
         Assert.assertEquals(16,(int)getInteger(defaultInitStack,CAPACITY));
         Assert.assertEquals(0,(int)getInteger(defaultInitStack,FRONT_CURSOR));
         Assert.assertEquals(6,(int)getInteger(defaultInitStack,TOP_CURSOR));
 
-        defaultInitStack.pop();
-        defaultInitStack.pop();
-        defaultInitStack.pop();
+        defaultInitStack.popLast();
+        defaultInitStack.popLast();
+        defaultInitStack.popLast();
 
-        defaultInitStack.peek();
-        defaultInitStack.peek();
-        defaultInitStack.peek();
+        defaultInitStack.popFront();
+        defaultInitStack.popFront();
+        defaultInitStack.popFront();
 
         Assert.assertEquals(16,(int)getInteger(defaultInitStack,CAPACITY));
         Assert.assertEquals(3,(int)getInteger(defaultInitStack,FRONT_CURSOR));
