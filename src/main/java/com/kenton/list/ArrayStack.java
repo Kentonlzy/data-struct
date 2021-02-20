@@ -58,7 +58,9 @@ public class ArrayStack<T> {
         return element;
     }
     private T element(int index){
-        return (T)arr[index];
+        T res=(T)arr[index];
+        arr[index]=null;//let gc do its work
+        return res;
     }
     private void add(T value){
         if (topCursor >= capacity -1){//扩容2倍
